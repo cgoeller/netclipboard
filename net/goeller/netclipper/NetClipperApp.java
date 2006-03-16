@@ -24,7 +24,7 @@ public class NetClipperApp
 
 		loadLookAndFeel();
 		NetClipperFrame frame = new NetClipperFrame();
-		frame.setSize(new Dimension(300, 200));
+		frame.setSize(new Dimension(350, 200));
 		frame.setVisible(true);
 	}
 
