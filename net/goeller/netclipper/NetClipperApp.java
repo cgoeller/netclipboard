@@ -36,7 +36,7 @@ public class NetClipperApp
 			UIManager
 					.setLookAndFeel("com.jgoodies.looks.plastic.PlasticXPLookAndFeel");
 		} catch (Exception ex) {
-			System.out.println("Could not set Look&Feel");
+			System.err.println("Could not set Look&Feel");
 		}
 
 	}
