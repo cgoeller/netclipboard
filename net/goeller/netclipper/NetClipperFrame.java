@@ -243,6 +243,7 @@ public class NetClipperFrame extends JFrame
 			String data = (String) xmlrpcClient
 					.execute("clipboard.get", params);
 			tpData.setText(data);
+			store();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -257,6 +258,7 @@ public class NetClipperFrame extends JFrame
 	 */
 	public int set(String data) {
 		tpData.setText(data);
+		store();
 		return 0;
 	}
 
