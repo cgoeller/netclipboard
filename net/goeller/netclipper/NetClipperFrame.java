@@ -16,12 +16,18 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+
+import org.apache.xmlrpc.WebServer;
+import org.apache.xmlrpc.XmlRpcClient;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -39,16 +45,31 @@ public class NetClipperFrame extends JFrame
 
 	/** The layout */
 	private final static String colLayout = "10dlu,fill:pref:grow,pref,5dlu,pref,10dlu";
-	private final static String rowLayout = "10dlu,pref,fill:min:grow,5dlu,pref,10dlu";
+	private final static String rowLayout = "10dlu,pref,fill:min:grow,5dlu,pref,5dlu,pref,10dlu";
 
 	/** Components */
 	private JTextPane tpData;
 	private JButton btRefresh;
 	private JButton btStore;
 	private JButton btExit;
+	private JButton btSend;
+	private JButton btFetch;
 
 	/** The Clipboard */
 	private Clipboard systemClipboard;
+
+	/** XML-RPC Stuff */
+	private URL serverUrl;
+	private XmlRpcClient xmlrpcClient;
+	private WebServer xmlrpcServer;
+
+	/** Config stuff */
+
+	private final int localPort = Integer.parseInt(NetClipperApp.config
+			.getProperty("local.port", "9999"));
+
+	private final String remoteAddress = NetClipperApp.config
+			.getProperty("remote.address");
 
 	/**
 	 * Creates a new NetClipperFrame
@@ -81,8 +102,27 @@ public class NetClipperFrame extends JFrame
 		btExit = new JButton("Exit");
 		btExit.setMnemonic('X');
 
+		btSend = new JButton("Send");
+		btSend.setMnemonic('E');
+
+		btFetch = new JButton("Fetch");
+		btFetch.setMnemonic('F');
+
 		systemClipboard = java.awt.Toolkit.getDefaultToolkit()
 				.getSystemClipboard();
+
+		try {
+
+			serverUrl = new URL(remoteAddress);
+			xmlrpcClient = new XmlRpcClient(serverUrl);
+
+		} catch (MalformedURLException e) {
+			System.err.println(e.getMessage());
+		}
+
+		xmlrpcServer = new WebServer(localPort);
+		xmlrpcServer.addHandler("clipboard", this);
+		xmlrpcServer.start();
 	}
 
 	/**
@@ -92,9 +132,6 @@ public class NetClipperFrame extends JFrame
 
 		btRefresh.addActionListener(new ActionListener()
 		{
-			/**
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-			 */
 			public void actionPerformed(ActionEvent e) {
 				refresh();
 			}
@@ -102,9 +139,6 @@ public class NetClipperFrame extends JFrame
 
 		btStore.addActionListener(new ActionListener()
 		{
-			/**
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-			 */
 			public void actionPerformed(ActionEvent e) {
 				store();
 			}
@@ -112,11 +146,22 @@ public class NetClipperFrame extends JFrame
 
 		btExit.addActionListener(new ActionListener()
 		{
-			/**
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-			 */
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
+			}
+		});
+
+		btSend.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e) {
+				send();
+			}
+		});
+
+		btFetch.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e) {
+				fetch();
 			}
 		});
 	}
@@ -140,6 +185,8 @@ public class NetClipperFrame extends JFrame
 		builder.add(btExit, cc.xy(2, 5, "left,center"));
 		builder.add(btRefresh, cc.xy(3, 5));
 		builder.add(btStore, cc.xy(5, 5));
+		builder.add(btSend, cc.xy(3, 7));
+		builder.add(btFetch, cc.xy(5, 7));
 
 		JScrollPane scrollPane = new JScrollPane(builder.getPanel());
 
@@ -170,5 +217,55 @@ public class NetClipperFrame extends JFrame
 
 		StringSelection data = new StringSelection(tpData.getText());
 		systemClipboard.setContents(data, data);
+	}
+
+	/**
+	 * Sends data to a client
+	 */
+	private void send() {
+		Vector<String> params = new Vector<String>();
+		params.add(tpData.getText());
+
+		try {
+			xmlrpcClient.execute("clipboard.set", params);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Gets data from a client
+	 */
+	private void fetch() {
+		Vector params = new Vector();
+
+		try {
+			String data = (String) xmlrpcClient
+					.execute("clipboard.get", params);
+			tpData.setText(data);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * XML-RPC Method
+	 * 
+	 * @param data
+	 *            the data to put in the clipboard
+	 * @return 0
+	 */
+	public int set(String data) {
+		tpData.setText(data);
+		return 0;
+	}
+
+	/**
+	 * XML-RPC Method
+	 * 
+	 * @return the clipboard content
+	 */
+	public String get() {
+		return tpData.getText();
 	}
 }

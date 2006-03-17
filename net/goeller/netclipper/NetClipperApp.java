@@ -5,6 +5,8 @@
 package net.goeller.netclipper;
 
 import java.awt.Dimension;
+import java.io.FileInputStream;
+import java.util.Properties;
 
 import javax.swing.UIManager;
 
@@ -15,6 +17,8 @@ import javax.swing.UIManager;
 public class NetClipperApp
 {
 
+	public static Properties config;
+
 	/**
 	 * Starts the application
 	 * 
@@ -22,9 +26,16 @@ public class NetClipperApp
 	 */
 	public static void main(String[] args) {
 
+		try {
+			config = new Properties();
+			config.load(new FileInputStream("config.properties"));
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+
 		loadLookAndFeel();
 		NetClipperFrame frame = new NetClipperFrame();
-		frame.setSize(new Dimension(350, 200));
+		frame.setSize(new Dimension(400, 200));
 		frame.setVisible(true);
 	}
 
@@ -36,7 +47,7 @@ public class NetClipperApp
 			UIManager
 					.setLookAndFeel("com.jgoodies.looks.plastic.PlasticXPLookAndFeel");
 		} catch (Exception ex) {
-			System.err.println("Could not set Look&Feel");
+			System.err.println(ex.getMessage());
 		}
 
 	}

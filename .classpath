@@ -4,5 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry sourcepath="E:/Libs/jars/jgoodies/forms-1.0.6-src.zip" kind="lib" path="E:/Libs/jars/jgoodies/forms-1.0.6.jar"/>
 	<classpathentry kind="lib" path="E:/Libs/jars/jgoodies/looks-2.0.1.jar"/>
+	<classpathentry kind="lib" path="E:/Libs/jars/xmlrpc/xmlrpc-2.0.1.jar"/>
+	<classpathentry kind="lib" path="E:/Libs/jars/apache/commons-codec-1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
