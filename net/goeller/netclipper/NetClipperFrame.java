@@ -10,12 +10,12 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.FlavorEvent;
+import java.awt.datatransfer.FlavorListener;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
@@ -110,7 +110,6 @@ public class NetClipperFrame extends JFrame
 
 		systemClipboard = java.awt.Toolkit.getDefaultToolkit()
 				.getSystemClipboard();
-
 		try {
 
 			serverUrl = new URL(remoteAddress);
@@ -129,6 +128,14 @@ public class NetClipperFrame extends JFrame
 	 * Initializes listeners
 	 */
 	private void initializeListeners() {
+
+		systemClipboard.addFlavorListener(new FlavorListener()
+		{
+			public void flavorsChanged(FlavorEvent e) {
+				refresh();
+				send();
+			}
+		});
 
 		btRefresh.addActionListener(new ActionListener()
 		{
@@ -206,7 +213,7 @@ public class NetClipperFrame extends JFrame
 				tpData.setText(data);
 			}
 		} catch (Exception e1) {
-			System.err.println(e1.getMessage());
+			// ignore exceptions
 		}
 	}
 
