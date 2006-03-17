@@ -200,13 +200,13 @@ public class NetClipperFrame extends JFrame
 		Transferable transfer = systemClipboard.getContents(null);
 
 		try {
-			String data = (String) transfer
-					.getTransferData(DataFlavor.stringFlavor);
-			tpData.setText(data);
-		} catch (UnsupportedFlavorException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			if (transfer.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+				String data = (String) transfer
+						.getTransferData(DataFlavor.stringFlavor);
+				tpData.setText(data);
+			}
+		} catch (Exception e1) {
+			System.err.println(e1.getMessage());
 		}
 	}
 
