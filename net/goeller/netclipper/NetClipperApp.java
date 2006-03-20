@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 by Christian Göller 
+ * Copyright 2006 by Christian Gï¿½ller 
  *
  */
 package net.goeller.netclipper;
@@ -11,7 +11,7 @@ import java.util.Properties;
 import javax.swing.UIManager;
 
 /**
- * @author Christian Göller
+ * @author Christian Gï¿½ller
  * @version 16.03.2006
  */
 public class NetClipperApp
@@ -35,7 +35,7 @@ public class NetClipperApp
 
 		loadLookAndFeel();
 		NetClipperFrame frame = new NetClipperFrame();
-		frame.setSize(new Dimension(400, 200));
+		frame.setSize(new Dimension(400, 300));
 		frame.setVisible(true);
 	}
 
