@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 by Christian Göller 
+ * Copyright 2006 by Christian Goeller 
  *
  */
 package net.goeller.netclipper;
@@ -34,7 +34,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
- * @author Christian Göller
+ * @author Christian Goeller
  * @version 16.03.2006
  * 
  */

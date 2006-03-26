@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 by Christian G�ller 
+ * Copyright 2006 by Christian Goeller 
  *
  */
 package net.goeller.netclipper;
@@ -11,7 +11,7 @@ import java.util.Properties;
 import javax.swing.UIManager;
 
 /**
- * @author Christian G�ller
+ * @author Christian Goeller
  * @version 16.03.2006
  */
 public class NetClipperApp
