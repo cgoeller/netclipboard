@@ -84,7 +84,7 @@ public class NetClipper
 			public void run() {
 				synchronized (NetClipper.this) {
 					String newData = loadFromClipboard();
-					if (newData != oldData) {
+					if (!newData.equals(oldData)) {
 						sendToPeer(newData);
 					}
 				}
