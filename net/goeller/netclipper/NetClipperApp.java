@@ -34,11 +34,15 @@ public class NetClipperApp
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
-
-		loadLookAndFeel();
-		NetClipperFrame frame = new NetClipperFrame();
-		frame.setSize(new Dimension(400, 300));
-		frame.setVisible(true);
+		
+		NetClipper netClipper = new NetClipper();
+		
+		if (args.length > 0 && args[0].equalsIgnoreCase("-W")) {
+			loadLookAndFeel();
+			NetClipperFrame frame = new NetClipperFrame(netClipper);
+			frame.setSize(new Dimension(400, 300));
+			frame.setVisible(true);
+		}
 	}
 
 	/**
@@ -51,7 +55,6 @@ public class NetClipperApp
 		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
-
 	}
 
 }

@@ -3,33 +3,21 @@
  *
  * $HeadURL$
  * $LastChangedDate$
- */ 
+ */
 package net.goeller.netclipper;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
-
-import org.apache.xmlrpc.WebServer;
-import org.apache.xmlrpc.XmlRpcClient;
 
 import com.jgoodies.forms.builder.PanelBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -39,10 +27,13 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author $LastChangedBy$
  * @version $LastChangedRevision$
  */
-public class NetClipperFrame extends JFrame
+public class NetClipperFrame extends JFrame implements INetClipboardListener
 {
 	/** The default serial version id */
 	private static final long serialVersionUID = 1L;
+
+	/** The netclipper */
+	private NetClipper netClipper;
 
 	/** The layout */
 	private final static String colLayout = "10dlu,fill:pref:grow,pref,5dlu,pref,10dlu";
@@ -56,56 +47,26 @@ public class NetClipperFrame extends JFrame
 	private JButton btSend;
 	private JButton btFetch;
 
-	/** The Clipboard */
-	private Clipboard systemClipboard;
-
-	/** XML-RPC Stuff */
-	private URL serverUrl;
-	private XmlRpcClient xmlrpcClient;
-	private WebServer xmlrpcServer;
-
-	/** Config stuff */
-
-	private final int localPort = Integer.parseInt(NetClipperApp.config
-			.getProperty("local.port", "9999"));
-
-	private final String remoteAddress = NetClipperApp.config
-			.getProperty("remote.address");
-
-	private Timer timer;
-
 	/**
 	 * Creates a new NetClipperFrame
 	 */
-	public NetClipperFrame()
-	{
+	public NetClipperFrame(NetClipper netClipper) {
 		super("NetClipper - The Network Clipboard");
+
+		this.netClipper = netClipper;
+		netClipper.addNetClipboardListener(this);
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		initializeComponents();
 		initializeListeners();
 		build();
 
-		refresh();
-		timer.scheduleAtFixedRate(new TimerTask()
-		{
-			/**
-			 * @see java.lang.Runnable#run()
-			 */
-			@Override
-			public void run()
-			{
-				refresh();
-			}
-
-		}, 1000, 500);
 	}
 
 	/**
 	 * Initializes components
 	 */
-	private void initializeComponents()
-	{
+	private void initializeComponents() {
 		tpData = new JTextPane();
 		tpData.setPreferredSize(new Dimension(300, 10));
 		tpData.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -124,70 +85,45 @@ public class NetClipperFrame extends JFrame
 
 		btFetch = new JButton("Fetch");
 		btFetch.setMnemonic('F');
-
-		systemClipboard = java.awt.Toolkit.getDefaultToolkit()
-				.getSystemClipboard();
-		try
-		{
-
-			serverUrl = new URL(remoteAddress);
-			xmlrpcClient = new XmlRpcClient(serverUrl);
-
-		} catch (MalformedURLException e)
-		{
-			System.err.println(e.getMessage());
-		}
-
-		xmlrpcServer = new WebServer(localPort);
-		xmlrpcServer.addHandler("clipboard", this);
-		xmlrpcServer.start();
-
-		timer = new Timer();
 	}
 
 	/**
 	 * Initializes listeners
 	 */
-	private void initializeListeners()
-	{
+	private void initializeListeners() {
 
 		btRefresh.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
-			{
-				refresh();
+			public void actionPerformed(ActionEvent e) {
+				setString(netClipper.loadFromClipboard());
 			}
 		});
 
 		btStore.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
-			{
-				store();
+			public void actionPerformed(ActionEvent e) {
+				netClipper.storeInClipboard(getString());
 			}
 		});
 
 		btExit.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
-			{
+			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
 		});
 
 		btSend.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
-			{
-				send();
+			public void actionPerformed(ActionEvent e) {
+				netClipper.sendToPeer(getString());
 			}
 		});
 
 		btFetch.addActionListener(new ActionListener()
 		{
-			public void actionPerformed(ActionEvent e)
-			{
-				fetch();
+			public void actionPerformed(ActionEvent e) {
+				setString(netClipper.fetchFromPeer());
 			}
 		});
 	}
@@ -195,14 +131,13 @@ public class NetClipperFrame extends JFrame
 	/**
 	 * Builds the panel
 	 */
-	private void build()
-	{
+	private void build() {
 
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
 
 		FormLayout layout = new FormLayout(colLayout, rowLayout);
-		layout.setColumnGroups(new int[][]{{3, 5}});
+		layout.setColumnGroups(new int[][] { { 3, 5 } });
 		PanelBuilder builder = new PanelBuilder(layout);
 		CellConstraints cc = new CellConstraints();
 
@@ -220,96 +155,28 @@ public class NetClipperFrame extends JFrame
 	}
 
 	/**
-	 * Loads data from the clipboard
+	 * @see net.goeller.netclipper.INetClipboardListener#dataRecieved(java.lang.String)
 	 */
-	private void refresh()
-	{
-		Transferable transfer = systemClipboard.getContents(null);
-
-		try
-		{
-			if (transfer.isDataFlavorSupported(DataFlavor.stringFlavor))
-			{
-				String data = (String) transfer
-						.getTransferData(DataFlavor.stringFlavor);
-				if (!data.equals(tpData.getText()))
-				{
-					tpData.setText(data);
-				}
-			}
-		} catch (Exception e1)
-		{
-			// ignore exceptions
-		}
+	public void dataRecieved(String data) {
+		setString(data);
 	}
 
 	/**
-	 * Stores data from the pane in the clipboard
-	 */
-	private void store()
-	{
-
-		StringSelection data = new StringSelection(tpData.getText());
-		systemClipboard.setContents(data, data);
-	}
-
-	/**
-	 * Sends data to a client
-	 */
-	private void send()
-	{
-		Vector<String> params = new Vector<String>();
-		params.add(tpData.getText());
-
-		try
-		{
-			xmlrpcClient.execute("clipboard.set", params);
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Gets data from a client
-	 */
-	private void fetch()
-	{
-		Vector params = new Vector();
-
-		try
-		{
-			String data = (String) xmlrpcClient
-					.execute("clipboard.get", params);
-			tpData.setText(data);
-			store();
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * XML-RPC Method
+	 * Returns the text of the text pane
 	 * 
-	 * @param data
-	 *            the data to put in the clipboard
-	 * @return 0
+	 * @return the text of the text pane
 	 */
-	public int set(String data)
-	{
-		tpData.setText(data);
-		store();
-		return 0;
-	}
-
-	/**
-	 * XML-RPC Method
-	 * 
-	 * @return the clipboard content
-	 */
-	public String get()
-	{
+	private String getString() {
 		return tpData.getText();
+	}
+
+	/**
+	 * Sets text to the text pane
+	 * 
+	 * @param text
+	 *            the text to set
+	 */
+	private void setString(String text) {
+		tpData.setText(text);
 	}
 }
