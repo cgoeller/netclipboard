@@ -53,7 +53,7 @@ public class NetClipper
 	private final int FIRST_DELAY = 1000;
 
 	/** */
-	private String oldData;
+	private String oldData = "";
 
 	/**
 	 * Creates a new NetClipper
