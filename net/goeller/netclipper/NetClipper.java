@@ -49,8 +49,8 @@ public class NetClipper
 	
 	/** Timer */
 	private Timer timer;
-	private final int UPDATE_TIME = 500;
-	private final int FIRST_DELAY = 1000;
+	private final int UPDATE_TIME = 350;
+	private final int FIRST_DELAY = 350;
 
 	/** */
 	private String oldData;
@@ -87,6 +87,7 @@ public class NetClipper
 					if (!newData.equals(oldData)) {
 						sendToPeer(newData);
 						oldData = newData;
+						informListeners(newData);
 					}
 				}
 			}
