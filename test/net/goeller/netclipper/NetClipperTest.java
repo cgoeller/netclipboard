@@ -6,7 +6,9 @@
  */
 package net.goeller.netclipper;
 
+import static org.easymock.EasyMock.*;
 import junit.framework.TestCase;
+
 
 /**
  * @author $LastChangedBy:chris $
@@ -15,6 +17,8 @@ import junit.framework.TestCase;
 public class NetClipperTest extends TestCase
 {
 
+	private NetClipper netClipper;
+	private INetClipboardListener listener;
 	
 	/**
 	 * @see junit.framework.TestCase#setUp()
@@ -23,6 +27,9 @@ public class NetClipperTest extends TestCase
 	protected void setUp() throws Exception
 	{
 		super.setUp();
+		
+		netClipper = new NetClipper();
+		listener = createMock(INetClipboardListener.class);
 	}
 
 	/*
@@ -30,7 +37,14 @@ public class NetClipperTest extends TestCase
 	 */
 	public void testAddNetClipboardListener()
 	{
-
+		listener.dataRecieved("TEST");
+		expectLastCall().once();
+		replay(listener);
+		
+		netClipper.addNetClipboardListener(listener);
+		netClipper.set("TEST");
+		verify(listener);
+		
 	}
 
 	/*
@@ -38,7 +52,8 @@ public class NetClipperTest extends TestCase
 	 */
 	public void testRemoveNetClipboardListener()
 	{
-
+		netClipper.addNetClipboardListener(listener);
+		netClipper.removeNetClipboardListener(listener);
 	}
 
 	/*
@@ -48,5 +63,4 @@ public class NetClipperTest extends TestCase
 	{
 
 	}
-
 }
