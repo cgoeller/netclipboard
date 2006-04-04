@@ -1,0 +1,1 @@
+java -cp libs/looks-2.0.1.jar:libs/xmlrpc-2.0.1.jar:libs/forms-1.0.6.jar:libs/commons-codec-1.3.jar:.  net.goeller.netclipper.NetClipperApp
