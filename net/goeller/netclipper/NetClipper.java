@@ -184,7 +184,7 @@ public class NetClipper
 		try {
 			xmlrpcClient.execute("clipboard.set", params);
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 	}
 
@@ -199,7 +199,7 @@ public class NetClipper
 					.execute("clipboard.get", params);
 			return data;
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return "";
 	}
