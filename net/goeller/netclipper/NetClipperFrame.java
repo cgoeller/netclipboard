@@ -1,7 +1,9 @@
 /*
- * Copyright 2006 by Christian Goeller 
+ * Copyright by Christian Goeller
  *
- */
+ * $HeadURL$
+ * $LastChangedDate$
+ */ 
 package net.goeller.netclipper;
 
 import java.awt.BorderLayout;
@@ -34,9 +36,8 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
- * @author Christian Goeller
- * @version 16.03.2006
- * 
+ * @author $LastChangedBy$
+ * @version $LastChangedRevision$
  */
 public class NetClipperFrame extends JFrame
 {
