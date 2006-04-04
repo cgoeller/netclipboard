@@ -53,7 +53,7 @@ public class NetClipper
 	private final int FIRST_DELAY = 1000;
 
 	/** */
-	private String oldData = "";
+	private String oldData;
 
 	/**
 	 * Creates a new NetClipper
@@ -63,6 +63,8 @@ public class NetClipper
 		systemClipboard = java.awt.Toolkit.getDefaultToolkit()
 				.getSystemClipboard();
 
+		oldData = loadFromClipboard();
+		
 		try {
 			serverUrl = new URL(REMOTE_ADDRESS);
 			xmlrpcClient = new XmlRpcClient(serverUrl);
@@ -76,7 +78,6 @@ public class NetClipper
 		xmlrpcServer.start();
 
 		timer = new Timer();
-
 		timer.scheduleAtFixedRate(new TimerTask()
 		{
 			@Override

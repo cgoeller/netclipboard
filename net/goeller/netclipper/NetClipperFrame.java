@@ -61,6 +61,7 @@ public class NetClipperFrame extends JFrame implements INetClipboardListener
 		initializeListeners();
 		build();
 
+		setString(netClipper.loadFromClipboard());
 	}
 
 	/**
