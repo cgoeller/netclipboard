@@ -45,6 +45,8 @@ public class NetClipper
 	private final String REMOTE_ADDRESS = NetClipperApp.config
 			.getProperty("remote.address");
 
+	private final String HANDLER_NAME = "clipboard";
+	
 	/** Timer */
 	private Timer timer;
 	private final int UPDATE_TIME = 500;
@@ -70,7 +72,7 @@ public class NetClipper
 		}
 
 		xmlrpcServer = new WebServer(LOCAL_PORT);
-		xmlrpcServer.addHandler("clipboard", this);
+		xmlrpcServer.addHandler(HANDLER_NAME, this);
 		xmlrpcServer.start();
 
 		timer = new Timer();
