@@ -86,6 +86,7 @@ public class NetClipper
 					String newData = loadFromClipboard();
 					if (!newData.equals(oldData)) {
 						sendToPeer(newData);
+						oldData = newData;
 					}
 				}
 			}
